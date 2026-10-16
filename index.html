@@ -1172,6 +1172,10 @@
   .vm-frame{aspect-ratio:1/1;width:min(100%,calc(100vh - 150px));margin:0 auto;}
   .vm-frame video{width:100%;height:100%;display:block;object-fit:contain;background:#000;}
   .vm-ext{display:block;text-align:center;}
+
+  /* Matheus Bitencourt, 16/10/2026 — quadro com proporção do vídeo */
+  .vm-frame{aspect-ratio:var(--ar,1);width:min(100%,calc((100vh - 150px) * var(--ar,1)));}
+  .vm-ext[hidden]{display:none;}
 </style>
 </head>
 <body>
@@ -1412,24 +1416,29 @@ const ANIMA = '.pes, .cr, .evgrid, .ocp, .lim, .func-list';
 })();
 </script>
 
-<div class="vmodal" id="vmodal" data-src="videos/destaques-matheus-bitencourt-2026.mp4" data-link="videos/destaques-matheus-bitencourt-2026.mp4" hidden role="dialog" aria-modal="true" aria-label="Highlights video">
+<div class="vmodal" id="vmodal" hidden role="dialog" aria-modal="true" aria-label="Video">
   <div class="vm-box">
     <button class="vm-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
     <div class="vm-frame"></div>
-    <a class="vm-ext" href="https://drive.google.com/file/d/1D2iHcLl3PbWfLbsLYEXd9PcybBGoZijR/view?usp=sharing" target="_blank" rel="noopener"><span class="l l-pt">Original em qualidade máxima no Google Drive</span><span class="l l-en">Original in full quality on Google Drive</span><span class="l l-es">Original en calidad máxima en Google Drive</span></a>
+    <a class="vm-ext" data-for="videos/destaques-matheus-bitencourt-2026.mp4" href="https://drive.google.com/file/d/1D2iHcLl3PbWfLbsLYEXd9PcybBGoZijR/view?usp=sharing" target="_blank" rel="noopener"><span class="l l-pt">Original em qualidade máxima no Google Drive</span><span class="l l-en">Original in full quality on Google Drive</span><span class="l l-es">Original en calidad máxima en Google Drive</span></a>
+    <a class="vm-ext" data-for="videos/futfalado-legenda-en.mp4" href="https://www.instagram.com/reel/DLDoVKTynuy/" target="_blank" rel="noopener"><span class="l l-pt">Ver o original no Instagram</span><span class="l l-en">Watch the original on Instagram</span><span class="l l-es">Ver el original en Instagram</span></a>
   </div>
 </div>
 <script>
-/* vídeo de highlights tocando na própria página, em 1080×1080; sem JS, o link abre o arquivo direto */
+/* vídeos tocando na própria página; sem JS, o link abre o arquivo direto. Proporção do quadro: 1 = quadrado, 0.5625 = vertical 9:16 */
 (function(){
   try{
     var m=document.getElementById('vmodal'); if(!m) return;
-    var frame=m.querySelector('.vm-frame'), last=null;
-    function open(a){
+    var frame=m.querySelector('.vm-frame'), exts=m.querySelectorAll('.vm-ext'), last=null;
+    var AR={'videos/destaques-matheus-bitencourt-2026.mp4':1,'videos/futfalado-legenda-en.mp4':0.5625};
+    function open(a,src){
       last=a; frame.innerHTML='';
+      frame.style.setProperty('--ar',AR[src]||1);
+      [].forEach.call(exts,function(x){ x.hidden=x.getAttribute('data-for')!==src; });
       var v=document.createElement('video');
-      v.src=m.getAttribute('data-src'); v.controls=true; v.autoplay=true; v.playsInline=true;
-      v.setAttribute('playsinline',''); v.setAttribute('preload','auto'); v.setAttribute('aria-label','Matheus Bitencourt highlights');
+      v.src=src; v.controls=true; v.autoplay=true; v.playsInline=true;
+      v.setAttribute('playsinline',''); v.setAttribute('preload','auto'); v.setAttribute('aria-label','Video');
+      v.addEventListener('loadedmetadata',function(){ if(v.videoWidth&&v.videoHeight) frame.style.setProperty('--ar',v.videoWidth/v.videoHeight); });
       frame.appendChild(v); m.hidden=false; document.body.classList.add('vm-open');
       var p=v.play(); if(p&&p.catch) p.catch(function(){});
       m.querySelector('.vm-x').focus();
@@ -1439,11 +1448,12 @@ const ANIMA = '.pes, .cr, .evgrid, .ocp, .lim, .func-list';
       m.hidden=true; frame.innerHTML=''; document.body.classList.remove('vm-open');
       if(last&&last.focus) last.focus();
     }
-    document.querySelectorAll('a[href="'+m.getAttribute('data-link')+'"]').forEach(function(a){
-      if(m.contains(a)) return;
+    document.querySelectorAll('a[href]').forEach(function(a){
+      var src=a.getAttribute('href');
+      if(m.contains(a)||!AR[src]) return;
       a.addEventListener('click',function(e){
         if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||e.button!==0) return;
-        e.preventDefault(); open(a);
+        e.preventDefault(); open(a,src);
       });
     });
     m.querySelector('.vm-x').addEventListener('click',close);
