@@ -1,6 +1,6 @@
 # Matheus Bitencourt — Player Profile
 
-Documento de arquivo único produzido pela 4ComM. Trilíngue (PT/EN/ES), abre em português.
+Documento de arquivo único produzido pela 4ComM. Trilíngue (PT/EN/ES), abre em inglês.
 
 **No ar:** https://4comm.github.io/matheus-bitencourt-player.profile/
 
